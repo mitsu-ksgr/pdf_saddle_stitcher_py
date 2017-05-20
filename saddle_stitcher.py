@@ -54,7 +54,7 @@ class SaddleStichPDF:
 
 def get_arguments():
     parser = argparse.ArgumentParser(description=(
-        "Generate pdf for saddle stitching."))
+        "Convert PDF for saddle stitching."))
     parser.add_argument("-nb", "--noblank", action="store_true", help=(
         "Set to not to insert blank pages"
         "when number of pages is multiple of 4."))
