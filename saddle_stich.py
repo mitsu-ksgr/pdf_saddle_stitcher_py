@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding: utf-8
 
+import argparse
 import os
-import sys
 from itertools import chain
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from PyPDF2.pdf import PageObject
@@ -52,23 +52,30 @@ class SaddleStichPDF:
         self.truncate_blank_pages = True
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("error: arg error")
-        print("usage: saddle_stich.py src.pdf [dst.pdf]")
-        exit()
+def get_arguments():
+    parser = argparse.ArgumentParser(description=(
+        "Generate pdf for saddle stitching."))
+    parser.add_argument("-nb", "--noblank", action="store_true", help=(
+        "Set to not to insert blank pages"
+        "when number of pages is multiple of 4."))
+    parser.add_argument("src_pdf_file_path")
+    parser.add_argument("-o", "--output", type=str, default="", help=(
+        "Output destination file path."))
+    return parser.parse_args()
 
-    ipath = sys.argv[1]
-    if len(sys.argv) >= 3:
-        opath = sys.argv[2]
+if __name__ == "__main__":
+    args = get_arguments()
+    ipath = args.src_pdf_file_path
+    if args.output:
+        opath = args.output
     else:
         opath = "{0}_saddlestich{1}".format(*os.path.splitext(ipath))
 
     print("Input : {}".format(ipath))
     try:
         with SaddleStichPDF(ipath, opath) as pdf:
-            #pdf.truncate_blank_back_cover()
-            pass
+            if args.noblank:
+                pdf.truncate_blank_back_cover()
         print("Generated to: {}".format(opath))
     except FileNotFoundError as e:
         print("error: file not found. {}".format(ipath))
