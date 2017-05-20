@@ -16,6 +16,7 @@ class SaddleStichPDF:
         """
         self.src_pdf = PdfFileReader(open(ipath, "rb"))
         self.generate_path = opath
+        self.truncate_blank_pages = False
 
     def __enter__(self):
         return self
@@ -25,7 +26,10 @@ class SaddleStichPDF:
 
     def __page_list(self):
         n = self.src_pdf.getNumPages()
-        n += (4 - n % 4)
+        if self.truncate_blank_pages and (n % 4 == 0):
+            pass
+        else:
+            n += (4 - n % 4)
         return list(chain.from_iterable(
             [[n-i, i+1, i+2, n-(i+1)] for i in range(0, int(n/2), 2)]))
 
@@ -40,6 +44,12 @@ class SaddleStichPDF:
                 gen_pdf.addPage(self.src_pdf.getPage(p - 1))
         with open(self.generate_path, "wb") as out:
             gen_pdf.write(out)
+
+    def truncate_blank_back_cover(self):
+        """
+        set to not to insert blank pages when number of pages is multiple of 4.
+        """
+        self.truncate_blank_pages = True
 
 
 if __name__ == "__main__":
@@ -57,6 +67,7 @@ if __name__ == "__main__":
     print("Input : {}".format(ipath))
     try:
         with SaddleStichPDF(ipath, opath) as pdf:
+            #pdf.truncate_blank_back_cover()
             pass
         print("Generated to: {}".format(opath))
     except FileNotFoundError as e:
